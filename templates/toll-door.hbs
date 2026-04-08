@@ -1,0 +1,31 @@
+<div class="dnm-door-blocked">
+
+  <p class="dnm-door-type">
+    <i class="fa-solid fa-coins"></i>
+    Toll Door
+  </p>
+
+  <p class="dnm-hint">{{tollMessage}}</p>
+
+  <p class="dnm-toll-cost">
+    Cost: <strong>{{tollCost}} cr</strong>
+    &nbsp;|&nbsp;
+    Your balance: <strong>{{currentCredits}} cr</strong>
+  </p>
+
+  {{#unless canAfford}}
+    <p class="dnm-toll-broke">Insufficient credits.</p>
+  {{/unless}}
+
+  <footer class="dnm-door-buttons">
+    {{#if canAfford}}
+      <button type="button" data-action="pay" class="dnm-btn-pay">
+        <i class="fa-solid fa-coins"></i> Pay {{tollCost}} cr
+      </button>
+    {{/if}}
+    <button type="button" data-action="back">
+      <i class="fa-solid fa-rotate-left"></i> Turn back
+    </button>
+  </footer>
+
+</div>

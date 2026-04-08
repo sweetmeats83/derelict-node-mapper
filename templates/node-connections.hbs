@@ -1,0 +1,32 @@
+<section class="dnm-connection-menu">
+  {{#if connections.length}}
+    <ul class="dnm-connection-list">
+      {{#each connections}}
+        <li class="dnm-connection-row" data-connection="{{id}}">
+          <div class="dnm-connection-main">
+            <div class="dnm-connection-text">
+              <div class="dnm-connection-label">{{label}}</div>
+              <div class="dnm-connection-meta">
+                <span>Start: {{startOffset}}</span>
+                <span>End: {{endOffset}}</span>
+                <span>Style: {{lineStyle}}</span>
+              </div>
+            </div>
+            <div class="dnm-connection-swatches">
+              <span class="dnm-color-swatch" style="background: {{lineColor}}"></span>
+              <span class="dnm-color-swatch accent" style="background: {{accentColor}}"></span>
+            </div>
+            <div class="dnm-connection-actions">
+              <button type="button" data-action="open">Settings</button>
+              <button type="button" data-action="handles">Anchors</button>
+              <button type="button" data-action="trace">Trace</button>
+            </div>
+          </div>
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p class="dnm-empty">No connections for this node.</p>
+  {{/if}}
+  <p class="dnm-hint">Tip: Shift-click a connection to reveal its anchor handles.</p>
+</section>

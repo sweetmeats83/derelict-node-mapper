@@ -1,0 +1,485 @@
+/* ── Derelict Node Mapper — Neon theme ─────────────────────────────────────── */
+
+/* Shared app chrome */
+.dnm-app .window-content {
+  background: #04101a;
+  color: #d7ffff;
+}
+
+.dnm-app .window-header {
+  background: #010e18;
+  border-bottom: 1px solid rgba(0,255,255,0.3);
+  color: #00ffff;
+}
+
+/* Form base */
+.dnm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 4px;
+}
+
+/* Section headings inside forms */
+.dnm-section-head {
+  margin: 2px 0 6px;
+  color: #00ffff;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(0,255,255,0.15);
+  padding-bottom: 3px;
+}
+
+/* Scrollable form with pinned footer */
+.dnm-form.dnm-form-scroll {
+  height: 100%;
+  overflow: hidden;
+  padding: 0;
+}
+
+.dnm-form.dnm-form-scroll .dnm-form-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 8px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dnm-form.dnm-form-scroll > .sheet-footer {
+  padding: 6px 8px;
+  border-top: 1px solid rgba(0,255,255,0.2);
+  background: #010e18;
+  flex-shrink: 0;
+}
+
+.dnm-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dnm-form .form-group label {
+  color: #8ce7ff;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.dnm-form .form-fields {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.dnm-form .form-fields > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dnm-form input[type=text],
+.dnm-form input[type=number],
+.dnm-form select {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(0,255,255,0.25);
+  color: #e0ffff;
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-size: 0.88rem;
+}
+
+.dnm-form input[type=text]:focus,
+.dnm-form input[type=number]:focus,
+.dnm-form select:focus {
+  border-color: rgba(0,255,255,0.7);
+  outline: none;
+  box-shadow: 0 0 4px rgba(0,255,255,0.3);
+}
+
+.dnm-form select option {
+  background: #04101a;
+  color: #e0ffff;
+}
+
+/* Colour pickers */
+.dnm-form .color-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dnm-form input[type=color] {
+  width: 36px;
+  height: 26px;
+  padding: 1px 2px;
+  border-radius: 3px;
+  border: 1px solid rgba(0,255,255,0.3);
+  background: transparent;
+  cursor: pointer;
+}
+
+.dnm-form .color-preview {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Checkboxes */
+.dnm-form .checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: none;
+  font-size: 0.85rem;
+  color: #c0eeff;
+}
+
+/* Subheading */
+.dnm-form .dnm-subheading,
+.dnm-app .dnm-subheading {
+  color: #7fe8ff;
+  font-size: 0.82rem;
+  margin: 0 0 4px;
+  padding: 0;
+}
+
+/* Buttons */
+.dnm-form .sheet-footer,
+.dnm-app .sheet-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0,255,255,0.15);
+  margin-top: 4px;
+}
+
+.dnm-btn {
+  padding: 4px 14px;
+  border: none;
+  border-radius: 3px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.dnm-btn:hover {
+  filter: brightness(1.25);
+}
+
+.dnm-btn-primary {
+  background: linear-gradient(90deg, #00ffff, #a040ff);
+  color: #010512;
+}
+
+.dnm-btn-secondary {
+  background: rgba(0,255,255,0.12);
+  color: #00ffff;
+  border: 1px solid rgba(0,255,255,0.3);
+}
+
+.dnm-btn-danger {
+  background: rgba(255,60,60,0.2);
+  color: #ff6060;
+  border: 1px solid rgba(255,60,60,0.4);
+}
+
+/* ── Token HUD travel button ─────────────────────────────────────────────── */
+#token-hud .dnm-travel {
+  color: #00ffff;
+  text-shadow: 0 0 6px #00ffff;
+}
+
+#token-hud .dnm-travel:hover {
+  color: #fff;
+  text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+}
+
+/* ── Door blocked dialogue ───────────────────────────────────────────────── */
+.dnm-door-blocked {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #d7ffff;
+}
+
+.dnm-door-blocked .dnm-door-type {
+  font-size: 1rem;
+  color: #ff9ff3;
+  font-weight: 600;
+  margin: 0;
+}
+
+.dnm-door-blocked .dnm-hint {
+  font-size: 0.8rem;
+  color: #8ce7ff;
+  margin: 0;
+  font-style: italic;
+}
+
+.dnm-door-blocked .dnm-door-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  border-top: 1px solid rgba(0,255,255,0.2);
+}
+
+.dnm-door-blocked button {
+  flex: 1;
+  padding: 6px 10px;
+  background: rgba(0,255,255,0.1);
+  border: 1px solid rgba(0,255,255,0.3);
+  color: #00ffff;
+  border-radius: 3px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dnm-door-blocked button:hover {
+  background: rgba(0,255,255,0.25);
+}
+
+.dnm-door-blocked button[data-action=back] {
+  border-color: rgba(255,100,100,0.4);
+  color: #ff9090;
+}
+
+.dnm-door-blocked button[data-action=back]:hover {
+  background: rgba(255,100,100,0.15);
+}
+
+.dnm-door-blocked button[data-action=pay] {
+  border-color: rgba(255,200,50,0.6);
+  color: #ffd84d;
+}
+
+.dnm-door-blocked button[data-action=pay]:hover {
+  background: rgba(255,200,50,0.15);
+}
+
+.dnm-toll-cost {
+  text-align: center;
+  font-size: 1em;
+  color: #ccc;
+  margin: 6px 0 2px;
+}
+
+.dnm-toll-broke {
+  text-align: center;
+  color: #ff6060;
+  font-size: 0.9em;
+  margin: 4px 0;
+}
+
+/* ── Transit Bar ─────────────────────────────────────────────────────────────
+   Toggle button: fixed at bottom-left, always visible.
+   Card: floating glass card, centered horizontally, sits just above the
+         Foundry hotbar.  Fades + slides up when shown.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+#dnm-transit-bar {
+  /* Container is just a mount point — no visual presence */
+  position:       fixed;
+  z-index:        62;
+  bottom:         0;
+  left:           0;
+  pointer-events: none;
+}
+
+/* ── Toggle button ─────────────────────────────────────────────────────────── */
+
+#dnm-transit-toggle {
+  pointer-events:  all;
+  position:        fixed;
+  bottom:          10px;
+  left:            12px;
+  width:           40px;
+  height:          36px;
+  background:      rgba(4, 20, 34, 0.30);
+  backdrop-filter: blur(20px) saturate(1.6);
+  border:          1px solid rgba(0, 255, 255, 0.4);
+  border-radius:   8px;
+  color:           #00ffff;
+  font-size:       17px;
+  cursor:          pointer;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  box-shadow:      0 0 16px rgba(0, 255, 255, 0.15),
+                   inset 0 1px 0 rgba(255,255,255,0.06);
+  transition:      background 0.15s, color 0.15s, box-shadow 0.15s;
+  z-index:         63;
+}
+
+#dnm-transit-toggle:hover {
+  background:  rgba(0, 255, 255, 0.12);
+  color:       #fff;
+  box-shadow:  0 0 28px rgba(0, 255, 255, 0.35),
+               inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+/* ── Floating glass card ───────────────────────────────────────────────────── */
+
+#dnm-transit-card {
+  pointer-events:  none;
+  position:        fixed;
+  bottom:          58px;             /* just above the Foundry hotbar */
+  left:            50%;
+  transform:       translateX(-50%) translateY(14px);
+  opacity:         0;
+  transition:      opacity 0.22s ease, transform 0.22s ease;
+
+  /* True glassmorphism — nearly transparent, backdrop does the work */
+  background:              rgba(4, 20, 34, 0.28);
+  backdrop-filter:         blur(28px) saturate(1.8) brightness(1.05);
+  -webkit-backdrop-filter: blur(28px) saturate(1.8) brightness(1.05);
+  border:           1px solid rgba(0, 255, 255, 0.22);
+  border-top-color: rgba(0, 255, 255, 0.50);  /* glass refraction edge */
+  border-radius:    14px;
+  box-shadow:       0 0 0 1px rgba(0, 255, 255, 0.06),
+                    0 8px 40px rgba(0, 0, 0, 0.40),
+                    0 0 80px rgba(0, 255, 255, 0.07),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.20);
+  padding:          10px 20px 14px;
+  max-width:        92vw;
+  overflow:         hidden;
+}
+
+#dnm-transit-card.dnm-visible {
+  pointer-events: all;
+  opacity:        1;
+  transform:      translateX(-50%) translateY(0);
+}
+
+/* ── Card header ───────────────────────────────────────────────────────────── */
+
+.dnm-transit-card-header {
+  display:        flex;
+  align-items:    center;
+  gap:            10px;
+  margin-bottom:  8px;
+  padding-bottom: 7px;
+  border-bottom:  1px solid rgba(0, 255, 255, 0.18);
+}
+
+.dnm-transit-card-header .fa-train-subway {
+  color:       #00ffff;
+  font-size:   13px;
+  opacity:     0.8;
+  flex-shrink: 0;
+}
+
+.dnm-transit-title {
+  font-family:    "Orbitron", sans-serif;
+  font-size:      10px;
+  font-weight:    700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color:          #00ffff;
+  text-shadow:    0 0 10px rgba(0, 255, 255, 0.65);
+  white-space:    nowrap;
+  flex-shrink:    0;
+}
+
+.dnm-transit-hint {
+  font-size:   9.5px;
+  color:       rgba(0, 255, 255, 0.38);
+  font-style:  italic;
+  white-space: nowrap;
+  overflow:    hidden;
+  text-overflow: ellipsis;
+  flex:        1;
+}
+
+.dnm-transit-restricted {
+  font-size:      9.5px;
+  font-family:    "Orbitron", sans-serif;
+  font-weight:    700;
+  letter-spacing: 0.1em;
+  color:          #ff4444;
+  text-shadow:    0 0 8px rgba(255, 60, 60, 0.6);
+  white-space:    nowrap;
+  flex-shrink:    0;
+}
+
+/* GM lock toggle button */
+#dnm-transit-lock {
+  flex-shrink:     0;
+  margin-left:     8px;
+  width:           26px;
+  height:          22px;
+  background:      rgba(0, 255, 255, 0.07);
+  border:          1px solid rgba(0, 255, 255, 0.28);
+  border-radius:   5px;
+  color:           rgba(0, 255, 255, 0.6);
+  font-size:       11px;
+  cursor:          pointer;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  transition:      background 0.15s, color 0.15s, border-color 0.15s;
+  padding:         0;
+}
+
+#dnm-transit-lock:hover {
+  background:   rgba(0, 255, 255, 0.16);
+  color:        #00ffff;
+  border-color: rgba(0, 255, 255, 0.55);
+}
+
+#dnm-transit-lock[data-state="off"] {
+  color:        #ff4444;
+  border-color: rgba(255, 60, 60, 0.45);
+  background:   rgba(255, 60, 60, 0.08);
+}
+
+#dnm-transit-lock[data-state="off"]:hover {
+  background:   rgba(255, 60, 60, 0.18);
+  border-color: #ff4444;
+}
+
+/* When restricted, dim the transit SVG so it's clear travel is unavailable */
+#dnm-transit-card.dnm-travel-restricted .dnm-transit-track-wrap {
+  opacity: 0.45;
+  filter:  grayscale(0.5);
+}
+
+/* ── SVG track wrapper ─────────────────────────────────────────────────────── */
+
+.dnm-transit-track-wrap {
+  overflow:  visible;
+  display:   flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── SVG station elements ──────────────────────────────────────────────────── */
+
+#dnm-transit-svg {
+  display:    block;
+  overflow:   visible;
+}
+
+#dnm-transit-svg .dnm-station {
+  transition: r 0.12s ease;
+}
+
+#dnm-transit-svg .dnm-station-label {
+  user-select: none;
+}

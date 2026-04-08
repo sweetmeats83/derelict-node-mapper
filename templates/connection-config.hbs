@@ -1,0 +1,134 @@
+<form autocomplete="off" class="dnm-form">
+
+  <p class="dnm-subheading">
+    <strong>{{fromLabel}}</strong> &rarr; <strong>{{toLabel}}</strong>
+  </p>
+
+  <div class="form-group">
+    <label>Connection Type</label>
+    <select name="type">
+      {{#each connectionTypes}}
+        <option value="{{id}}" {{#if (eq id ../type)}}selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Line Colour</label>
+    <div class="color-row">
+      <input type="color" name="lineColor" value="{{lineColor}}" />
+      <span class="color-preview" data-preview="lineColor" style="background:{{lineColor}}"></span>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Icon / Accent Colour</label>
+    <div class="color-row">
+      <input type="color" name="accentColor" value="{{accentColor}}" />
+      <span class="color-preview" data-preview="accentColor" style="background:{{accentColor}}"></span>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Line Width</label>
+    <input type="number" name="lineWidth" value="{{lineWidth}}" min="1" max="40" />
+  </div>
+
+  <div class="form-group">
+    <label>Line Style</label>
+    <select name="lineStyle">
+      {{#each lineStyles}}
+        <option value="{{id}}" {{#if (eq id ../lineStyle)}}selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="form-group checkbox-group">
+    <label>
+      <input type="checkbox" name="travelable" {{#if travelable}}checked{{/if}} />
+      Tokens can travel this connection
+    </label>
+  </div>
+
+  <div class="form-group checkbox-group">
+    <label>
+      <input type="checkbox" name="oneWay" {{#if oneWay}}checked{{/if}} />
+      One-way (origin → destination only)
+    </label>
+  </div>
+
+  <div class="form-group checkbox-group">
+    <label>
+      <input type="checkbox" name="hidden" {{#if hidden}}checked{{/if}} />
+      Hidden door (GM only — secret passage)
+    </label>
+  </div>
+
+  <div class="form-group checkbox-group">
+    <label>
+      <input type="checkbox" name="firstStopLocked" id="dnm-first-locked" {{#if firstStopLocked}}checked{{/if}} />
+      Lock <strong>{{fromLabel}}</strong> entrance
+    </label>
+  </div>
+
+  <div class="form-group checkbox-group">
+    <label>
+      <input type="checkbox" name="lastStopLocked" id="dnm-last-locked" {{#if lastStopLocked}}checked{{/if}} />
+      Lock <strong>{{toLabel}}</strong> entrance
+    </label>
+  </div>
+
+  <div class="dnm-toll-section" style="display:{{#if isToll}}block{{else}}none{{/if}}">
+    <p class="dnm-section-head">Toll Settings</p>
+    <div class="form-group">
+      <label>Toll Cost (cr)</label>
+      <input type="number" name="tollCost" value="{{tollCost}}" min="0" />
+    </div>
+    <div class="form-group">
+      <label>Toll message <span style="opacity:0.6;font-size:0.85em">(shown to players)</span></label>
+      <textarea name="tollMessage" rows="3" style="width:100%;resize:vertical;font-size:0.9em;background:#0a1c27;color:#ccc;border:1px solid #00ffff44;border-radius:4px;padding:4px">{{tollMessage}}</textarea>
+    </div>
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" name="firstStopToll" {{#if firstStopToll}}checked{{/if}} />
+        Toll on <strong>{{fromLabel}}</strong> entrance
+      </label>
+    </div>
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" name="lastStopToll" {{#if lastStopToll}}checked{{/if}} />
+        Toll on <strong>{{toLabel}}</strong> entrance
+      </label>
+    </div>
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" name="tollOneTime" {{#if tollOneTime}}checked{{/if}} />
+        One-time toll — free after first payment
+      </label>
+    </div>
+    {{#if tollPaid}}
+      <p style="font-size:0.85em;color:#7dff7d;margin:2px 0 6px">
+        <i class="fa-solid fa-circle-check"></i> Toll has been paid — door is free.
+        <em style="color:#aaa">(Uncheck "one-time" and save to reset.)</em>
+      </p>
+    {{/if}}
+  </div>
+
+  <div class="form-group dnm-lock-message-group" id="dnm-lock-message-group" style="display:{{#if anyLocked}}block{{else}}none{{/if}}">
+    <label>Locked door message <span style="opacity:0.6;font-size:0.85em">(shown to players)</span></label>
+    <textarea name="lockMessage" rows="3" style="width:100%;resize:vertical;font-size:0.9em;background:#0a1c27;color:#ccc;border:1px solid #00ffff44;border-radius:4px;padding:4px">{{lockMessage}}</textarea>
+  </div>
+
+  <footer class="sheet-footer">
+    {{#if canDelete}}
+      <button type="button" class="dnm-btn dnm-btn-danger" data-action="delete">
+        <i class="fa-solid fa-trash"></i> Delete
+      </button>
+    {{/if}}
+    <button type="button" class="dnm-btn dnm-btn-secondary" data-action="cancel">Cancel</button>
+    <button type="button" class="dnm-btn dnm-btn-primary" data-action="submit">
+      {{#if isNew}}Create{{else}}Save{{/if}}
+    </button>
+  </footer>
+
+</form>

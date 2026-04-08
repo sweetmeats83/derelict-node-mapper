@@ -1,0 +1,215 @@
+<form autocomplete="off" class="dnm-form dnm-form-scroll">
+  <div class="dnm-form-body">
+
+  {{!-- ── TEXT ── --}}
+  <h3 class="dnm-section-head">LABEL &amp; TEXT</h3>
+
+  <div class="form-group">
+    <label>Label (displayed bold &amp; caps on node)</label>
+    <input type="text" name="label" value="{{label}}" placeholder="Room name…" />
+  </div>
+
+  <div class="form-group form-fields">
+    <div>
+      <label>Label Colour</label>
+      <div class="color-row">
+        <input type="color" name="labelColor" value="{{labelColor}}" />
+        <span class="color-preview" data-preview="labelColor" style="background:{{labelColor}}"></span>
+      </div>
+    </div>
+    <div>
+      <label>Label Size</label>
+      <input type="number" name="labelSize" value="{{labelSize}}" min="8" max="72" />
+    </div>
+    <div>
+      <label>Label Offset Y</label>
+      <input type="number" name="labelOffset" value="{{labelOffset}}" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Description (shown below label on node)</label>
+    <textarea name="description" rows="3" style="resize:vertical;font-size:0.9em;background:#0a1c27;color:#ccc;border:1px solid #00ffff44;border-radius:4px;padding:4px;width:100%;box-sizing:border-box">{{description}}</textarea>
+  </div>
+
+  <div class="form-group form-fields">
+    <div>
+      <label>Description Colour</label>
+      <div class="color-row">
+        <input type="color" name="descriptionColor" value="{{descriptionColor}}" />
+        <span class="color-preview" data-preview="descriptionColor" style="background:{{descriptionColor}}"></span>
+      </div>
+    </div>
+    <div>
+      <label>Description Size</label>
+      <input type="number" name="descriptionSize" value="{{descriptionSize}}" min="8" max="48" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Font</label>
+    <input type="text" name="fontFamily" value="{{fontFamily}}" />
+  </div>
+
+  <hr />
+
+  {{!-- ── GEOMETRY ── --}}
+  <h3 class="dnm-section-head">SHAPE &amp; SIZE</h3>
+
+  <div class="form-group form-fields">
+    <div>
+      <label>Position X</label>
+      <input type="number" name="x" value="{{x}}" step="1" />
+    </div>
+    <div>
+      <label>Position Y</label>
+      <input type="number" name="y" value="{{y}}" step="1" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Shape</label>
+    <select name="shape">
+      {{#each shapes}}
+        <option value="{{id}}" {{#if (eq id ../shape)}}selected{{/if}}>{{label}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="form-group form-fields">
+    <div>
+      <label>Width (px)</label>
+      <input type="number" name="width" value="{{width}}" min="60" step="10" />
+    </div>
+    <div>
+      <label>Height (px)</label>
+      <input type="number" name="height" value="{{height}}" min="60" step="10" />
+    </div>
+  </div>
+
+  <hr />
+
+  {{!-- ── COLOURS ── --}}
+  <h3 class="dnm-section-head">COLOURS</h3>
+
+  <div class="form-group form-fields">
+    <div>
+      <label>Fill</label>
+      <div class="color-row">
+        <input type="color" name="fillColor" value="{{fillColor}}" />
+        <span class="color-preview" data-preview="fillColor" style="background:{{fillColor}}"></span>
+      </div>
+    </div>
+    <div>
+      <label>Border</label>
+      <div class="color-row">
+        <input type="color" name="borderColor" value="{{borderColor}}" />
+        <span class="color-preview" data-preview="borderColor" style="background:{{borderColor}}"></span>
+      </div>
+    </div>
+    <div>
+      <label>Border Width</label>
+      <input type="number" name="borderWidth" value="{{borderWidth}}" min="1" max="20" />
+    </div>
+  </div>
+
+  <div class="form-group checkbox-group">
+    <label>
+      <input type="checkbox" name="createWalls" {{#if createWalls}}checked{{/if}} />
+      Create FoW walls around this node
+    </label>
+  </div>
+
+  <div class="form-group checkbox-group">
+    <label>
+      <input type="checkbox" name="fastTravelHub" {{#if fastTravelHub}}checked{{/if}} />
+      Fast Travel Hub — show on transit bar after discovery
+    </label>
+  </div>
+
+  <hr />
+
+  {{!-- ── ON ENTER ACTIONS ── --}}
+  <h3 class="dnm-section-head">ON ENTER ACTIONS</h3>
+  <p style="font-size:11px;color:#aaa;margin:0 0 8px">Any combination can be active at once.</p>
+
+  <div class="form-group checkbox-group">
+    <label>
+      <input type="checkbox" name="onEnter.showImage" id="dnm-oe-showimage" {{#if onEnter.showImage}}checked{{/if}} />
+      Show Image on enter
+    </label>
+  </div>
+  <div id="dnm-oe-image-field" style="display:{{#if onEnter.showImage}}block{{else}}none{{/if}}">
+    <div class="form-group">
+      <label>Image Path</label>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="text" name="onEnter.imageUrl" value="{{onEnter.imageUrl}}" placeholder="path/to/image.webp" style="flex:1" />
+        <button type="button" class="dnm-btn dnm-btn-secondary" style="padding:2px 8px" data-action="pickImage">
+          <i class="fa-solid fa-folder-open"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group checkbox-group">
+    <label>
+      <input type="checkbox" name="onEnter.sendToScene" id="dnm-oe-sendscene" {{#if onEnter.sendToScene}}checked{{/if}} />
+      Send to Scene on enter
+    </label>
+  </div>
+  <div id="dnm-oe-scene-field" style="display:{{#if onEnter.sendToScene}}block{{else}}none{{/if}}">
+    <div class="form-group">
+      <label>Scene UUID</label>
+      <input type="text" name="onEnter.sceneId" value="{{onEnter.sceneId}}" placeholder="Paste Scene UUID…" />
+      <p style="font-size:11px;color:#aaa;margin:2px 0 0">Right-click a Scene in the sidebar → Copy UUID</p>
+    </div>
+  </div>
+
+  <div class="form-group checkbox-group">
+    <label>
+      <input type="checkbox" name="onEnter.openJournal" id="dnm-oe-openjournal" {{#if onEnter.openJournal}}checked{{/if}} />
+      Open Journal on enter
+    </label>
+  </div>
+  <div id="dnm-oe-journal-field" style="display:{{#if onEnter.openJournal}}block{{else}}none{{/if}}">
+    <div class="form-group">
+      <label>Journal Entry ID</label>
+      <input type="text" name="onEnter.journalId" value="{{onEnter.journalId}}" placeholder="Paste Journal ID…" />
+      <p style="font-size:11px;color:#aaa;margin:2px 0 0">Right-click a Journal in the sidebar → Copy ID</p>
+    </div>
+  </div>
+
+  <hr />
+
+  {{!-- ── ENCOUNTER CHECK ── --}}
+  <h3 class="dnm-section-head">ENCOUNTER CHECK</h3>
+  <p style="font-size:11px;color:#aaa;margin:0 0 8px">Roll on a table when a token enters. Result is GM-only.</p>
+
+  <div class="form-group form-fields">
+    <div>
+      <label>Chance % <span style="opacity:0.6">(0 = off)</span></label>
+      <input type="number" name="encounter.chance" value="{{encounter.chance}}" min="0" max="100" step="1" />
+    </div>
+    <div>
+      <label>Roll Table ID</label>
+      <input type="text" name="encounter.tableId" value="{{encounter.tableId}}" placeholder="Paste RollTable ID…" />
+    </div>
+  </div>
+  <p style="font-size:11px;color:#aaa;margin:-4px 0 0">Right-click a Roll Table in the sidebar → Copy ID</p>
+
+  </div>{{!-- /dnm-form-body --}}
+
+  <footer class="sheet-footer">
+    {{#if canDelete}}
+      <button type="button" class="dnm-btn dnm-btn-danger" data-action="delete">
+        <i class="fa-solid fa-trash"></i> Delete
+      </button>
+    {{/if}}
+    <button type="button" class="dnm-btn dnm-btn-secondary" data-action="cancel">Cancel</button>
+    <button type="button" class="dnm-btn dnm-btn-primary" data-action="submit">
+      {{#if isNew}}Create{{else}}Save{{/if}}
+    </button>
+  </footer>
+
+
+</form>

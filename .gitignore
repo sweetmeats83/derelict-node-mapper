@@ -1,0 +1,22 @@
+# Claude Code session data
+.claude/
+
+# Personal map files — large binaries, not part of the module
+*.png
+*.jpg
+*.jpeg
+!icons/**
+!docs/**
+
+# Internal dev / planning notes not relevant to users
+ARCHIVED.md
+REBUILD_PLAN.md
+
+# OS junk
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editor
+.vscode/
+*.swp

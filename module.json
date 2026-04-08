@@ -1,0 +1,28 @@
+{
+  "id": "derelict-node-mapper",
+  "type": "module",
+  "title": "Derelict Node Mapper",
+  "description": "Network node maps for Foundry VTT. GMs build room graphs; players navigate with animated token-dots that respect Fog of War.",
+  "version": "0.5.83",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13",
+    "maximum": "15"
+  },
+  "authors": [
+    { "name": "Nathan Blankenship" }
+  ],
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/neon.css"
+  ],
+  "socket": true,
+  "languages": [],
+  "packs": [],
+  "url": "https://github.com/nblankenship/derelict-node-mapper",
+  "license": "MIT",
+  "manifest": "https://raw.githubusercontent.com/nblankenship/derelict-node-mapper/main/module.json",
+  "download": "https://github.com/nblankenship/derelict-node-mapper/releases/latest/download/derelict-node-mapper.zip"
+}
