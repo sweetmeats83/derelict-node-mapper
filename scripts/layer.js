@@ -1,4 +1,4 @@
-you/**
+/**
  * layer.js — manages three PIXI containers:
  *
  *  mapContainer     → canvas.primary (PrimaryCanvasGroup)

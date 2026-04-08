@@ -200,6 +200,12 @@ function drawConnection(container, conn, nodes, isGM, drawPath, hops = [], gaps 
     }
   }
 
+  // ── One-way arrow ────────────────────────────────────────────────────────────
+  if (conn.oneWay) {
+    const arrow = _drawOneWayArrow(storedPath, color, width);
+    if (arrow) { arrow.zIndex = 5; container.addChild(arrow); }
+  }
+
   // ── GM-only secret/hidden eye toggle ────────────────────────────────────────
   if (isGM && (conn.hidden || conn.type === "secret")) {
     const eyeStops = [stops[0], stops[stops.length - 1]].filter(s => s && !s.nodeId);
@@ -363,6 +369,44 @@ function _drawTriggerBadge(container, type, b) {
   txt.position.set(bx, by);
   txt.zIndex = 36;
   container.addChild(txt);
+}
+
+/**
+ * Draw a filled arrowhead at the midpoint of a one-way connection path,
+ * pointing in the direction of travel (stop[0] → stop[last]).
+ */
+function _drawOneWayArrow(path, color, lineWidth) {
+  if (!path || path.length < 2) return null;
+
+  // Find the midpoint along the path
+  const mid = Math.floor(path.length / 2);
+  const p0  = path[mid - 1] ?? path[0];
+  const p1  = path[mid];
+
+  const dx  = p1.x - p0.x;
+  const dy  = p1.y - p0.y;
+  const len = Math.hypot(dx, dy);
+  if (len < 1) return null;
+
+  const ux = dx / len;  // unit vector along path
+  const uy = dy / len;
+  const px = -uy;       // perpendicular
+  const py =  ux;
+
+  // Arrowhead size scales with line width, min 10px
+  const size = Math.max(10, lineWidth * 2.2);
+  const tip  = { x: p1.x + ux * size * 0.5, y: p1.y + uy * size * 0.5 };
+  const bl   = { x: p1.x - ux * size + px * size * 0.6, y: p1.y - uy * size + py * size * 0.6 };
+  const br   = { x: p1.x - ux * size - px * size * 0.6, y: p1.y - uy * size - py * size * 0.6 };
+
+  const g = new PIXI.Graphics();
+  g.beginFill(color, 0.9);
+  g.moveTo(tip.x, tip.y);
+  g.lineTo(bl.x,  bl.y);
+  g.lineTo(br.x,  br.y);
+  g.closePath();
+  g.endFill();
+  return g;
 }
 
 /**

@@ -67,6 +67,11 @@ export class TravelManager {
         }).render(true);
         return;
       }
+      // One-way: only allow entry from stop[0] (forward direction)
+      if (conn.oneWay && startStopIdx !== 0) {
+        ui.notifications?.warn("[DNM] This passage only allows travel in one direction.");
+        return;
+      }
     }
 
     const originUserId = game.user.id;
@@ -630,8 +635,12 @@ function _buildChoices(scene, conn, stop, si, stops) {
     const pi     = stop.pathIdx ?? (si === 0 ? 0 : conn.path.length - 1);
     const fwdSi  = _nextPauseSi(stops, si, +1);
     const backSi = _nextPauseSi(stops, si, -1);
-    if (fwdSi  >= 0) { const d = _armCardinal(conn.path, pi, true);  if (d) choices.push({ direction: d, action: `goto:${fwdSi}`  }); }
-    if (backSi >= 0) { const d = _armCardinal(conn.path, pi, false); if (d) choices.push({ direction: d, action: `goto:${backSi}` }); }
+    // On a one-way connection players can only go forward (stop[0]→end).
+    // Suppress the turn-around arrow at the first stop; suppress forward at last.
+    const blockBack = !isGM && conn.oneWay && si === 0;
+    const blockFwd  = !isGM && conn.oneWay && si === stops.length - 1;
+    if (fwdSi  >= 0 && !blockFwd)  { const d = _armCardinal(conn.path, pi, true);  if (d) choices.push({ direction: d, action: `goto:${fwdSi}`  }); }
+    if (backSi >= 0 && !blockBack) { const d = _armCardinal(conn.path, pi, false); if (d) choices.push({ direction: d, action: `goto:${backSi}` }); }
     return choices;
   }
 
@@ -649,9 +658,12 @@ function _buildChoices(scene, conn, stop, si, stops) {
       if (!other.path?.length) continue;
 
       if (osi === 0) {
+        // Entering from the first stop — always allowed
         const d = _armCardinal(other.path, 0, true);
         if (d) dirMap.set(d, { direction: d, action: `branch:${other.id}:0` });
       } else if (osi === os.length - 1) {
+        // Entering from the last stop — blocked on one-way connections for players
+        if (!isGM && other.oneWay) continue;
         const d = _armCardinal(other.path, other.path.length - 1, false);
         if (d) dirMap.set(d, { direction: d, action: `branch:${other.id}:${osi}` });
       } else {
@@ -659,7 +671,8 @@ function _buildChoices(scene, conn, stop, si, stops) {
         const fwdSi  = _nextPauseSi(os, osi, +1);
         const backSi = _nextPauseSi(os, osi, -1);
         if (fwdSi  >= 0) { const d = _armCardinal(other.path, spi, true);  if (d) dirMap.set(d, { direction: d, action: `branch:${other.id}:${osi}:1`  }); }
-        if (backSi >= 0) { const d = _armCardinal(other.path, spi, false); if (d) dirMap.set(d, { direction: d, action: `branch:${other.id}:${osi}:-1` }); }
+        // Backward from a mid-junction into a one-way is also blocked
+        if (backSi >= 0 && !((!isGM) && other.oneWay)) { const d = _armCardinal(other.path, spi, false); if (d) dirMap.set(d, { direction: d, action: `branch:${other.id}:${osi}:-1` }); }
       }
     }
   }
