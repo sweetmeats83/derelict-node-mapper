@@ -262,7 +262,8 @@ export class TravelManager {
       dot.state = TRAVEL_STATE.WAITING;
       _pulseWaitingDot(dot);
 
-      // Encounter check for junction/path stops (not room terminals — those fire on enter)
+      // Encounter check for junction/path stops — fires before the direction panel.
+      // Room node encounters fire after the player commits to entering (in _executeNodeEnterAction).
       if (stop.kind !== "terminal" || !stop.nodeId) {
         await _checkEncounter(stop.encounter, tokenDoc);
       }
@@ -484,6 +485,9 @@ async function _executeNodeEnterAction(destNodeId, tokenDoc = null) {
   const destNode = getNode(canvas.scene, destNodeId);
   if (!destNode) return;
 
+  // Encounter check — fires on entry, after token teleports in
+  await _checkEncounter(destNode.encounter, tokenDoc);
+
   // ── Discovery tracking (fast travel transit bar) ──────────────────────────
   if (game.user?.id) {
     const { markLocalDiscovered } = await import("./transitBar.js");
@@ -501,8 +505,6 @@ async function _executeNodeEnterAction(destNodeId, tokenDoc = null) {
     }
   }
 
-  // Encounter check for room node
-  await _checkEncounter(destNode.encounter, tokenDoc);
 
   const action = destNode.onEnter;
   if (!action) return;
