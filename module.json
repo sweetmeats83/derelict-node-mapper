@@ -21,8 +21,8 @@
   "socket": true,
   "languages": [],
   "packs": [],
-  "url": "https://github.com/nblankenship/derelict-node-mapper",
+  "url": "https://github.com/sweetmeats83/derelict-node-mapper",
   "license": "MIT",
-  "manifest": "https://raw.githubusercontent.com/nblankenship/derelict-node-mapper/main/module.json",
-  "download": "https://github.com/nblankenship/derelict-node-mapper/releases/latest/download/derelict-node-mapper.zip"
+  "manifest": "https://raw.githubusercontent.com/sweetmeats83/derelict-node-mapper/main/module.json",
+  "download": "https://github.com/sweetmeats83/derelict-node-mapper/releases/latest/download/derelict-node-mapper.zip"
 }
