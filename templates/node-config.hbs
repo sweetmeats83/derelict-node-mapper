@@ -177,6 +177,14 @@
       <input type="text" name="onEnter.journalId" value="{{onEnter.journalId}}" placeholder="Paste Journal ID…" />
       <p style="font-size:11px;color:#aaa;margin:2px 0 0">Right-click a Journal in the sidebar → Copy ID</p>
     </div>
+    <div class="form-group">
+      <label>Show journal to</label>
+      <select name="onEnter.journalTarget">
+        <option value="both"   {{#if (eq onEnter.journalTarget "both")  }}selected{{/if}}>GM and Player</option>
+        <option value="gm"     {{#if (eq onEnter.journalTarget "gm")    }}selected{{/if}}>GM only</option>
+        <option value="player" {{#if (eq onEnter.journalTarget "player")}}selected{{/if}}>Player only</option>
+      </select>
+    </div>
   </div>
 
   <hr />

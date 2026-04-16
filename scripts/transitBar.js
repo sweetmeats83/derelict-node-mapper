@@ -133,6 +133,8 @@ export function destroyTransitBar() {
 
 export function refreshTransitBar() {
   if (!_bar) return;
+  // Resync local cache from flags — a GM clear may have removed entries
+  _localDiscovered.clear();
   const userId = game.user?.id;
   if (userId && canvas.scene) {
     const stored = canvas.scene.getFlag(MODULE_ID, FLAG_DISCOVERED)?.[userId] ?? {};

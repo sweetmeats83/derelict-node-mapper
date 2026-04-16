@@ -79,7 +79,7 @@ export const DEFAULT_NODE = Object.freeze({
   descriptionColor:"#cccccc",
   createWalls:    true,
   fastTravelHub:  false,
-  onEnter:      { showImage: false, imageUrl: "", sendToScene: false, sceneId: "", openJournal: false, journalId: "" },
+  onEnter:      { showImage: false, imageUrl: "", sendToScene: false, sceneId: "", openJournal: false, journalId: "", journalTarget: "both" },
   encounter:    { chance: 0, tableId: "" },
 });
 
@@ -95,16 +95,17 @@ export const DEFAULT_CONNECTION = Object.freeze({
   lockMessage:  "The way is locked. You need authorisation to proceed.",
   tollCost:     0,
   tollMessage:  "A toll is required to pass.",
-  tollOneTime:  false,
-  tollPaid:     false,
-  stops:        [],
+  tollOneTime:    false,
+  tollPaid:       false,
+  lockOnTraverse: false,   // false | "first" | "last" — stop index that locks after traversal
+  stops:          [],
 });
 
 // ── Visual constants ──────────────────────────────────────────────────────────
 export const DOOR_ICON_RADIUS   = 14;  // px, size of door icon circle on node edge
 export const DOT_RADIUS         = 12;  // px, travel dot radius
 export const DOT_GLOW_RADIUS    = 28;  // px, outer glow radius
-export const TRAVEL_SPEED       = 300; // px per second
+export const TRAVEL_SPEED       = 180; // px per second
 
 // ── Icon SVG paths (inline, drawn with PIXI.Graphics) ────────────────────────
 // Icons are drawn procedurally in renderer.js; this maps type id → draw function key

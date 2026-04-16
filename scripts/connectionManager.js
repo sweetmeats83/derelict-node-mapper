@@ -607,6 +607,22 @@ export class ConnectionManager {
     ConnectionManager._lastTranslate = null;
   }
 
+  /**
+   * Lock a single stop on a connection without rebuilding path or walls.
+   * Used by lock-on-traverse doors — geometry is unchanged, only the locked flag changes.
+   * GM-only: players trigger this via socket broadcast.
+   */
+  static async lockConnectionStop(connectionId, stopIdx) {
+    const scene = canvas.scene;
+    if (!scene) return;
+    const conns = foundry.utils.duplicate(scene.getFlag(MODULE_ID, "connections") ?? {});
+    const conn  = conns[connectionId];
+    if (!conn?.stops?.[stopIdx]) return;
+    if (conn.stops[stopIdx].locked) return; // already locked — no write needed
+    conn.stops[stopIdx].locked = true;
+    await scene.setFlag(MODULE_ID, "connections", conns);
+  }
+
 }
 
 // ── Direction cache ───────────────────────────────────────────────────────────

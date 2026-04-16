@@ -39,7 +39,7 @@ export class NodeConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
       descriptionSize:  fd.descriptionSize  ?? 14,
       descriptionColor: fd.descriptionColor ?? "#cccccc",
       fastTravelHub: fd.fastTravelHub ?? false,
-      onEnter:   { showImage: false, imageUrl: "", sendToScene: false, sceneId: "", openJournal: false, journalId: "", ...(fd.onEnter ?? {}) },
+      onEnter:   { showImage: false, imageUrl: "", sendToScene: false, sceneId: "", openJournal: false, journalId: "", journalTarget: "both", ...(fd.onEnter ?? {}) },
       encounter: { chance: 0, tableId: "", ...(fd.encounter ?? {}) },
       shapes:    NODE_SHAPES,
       isNew:     !fd.id,
@@ -114,8 +114,10 @@ export class NodeConfigApp extends HandlebarsApplicationMixin(ApplicationV2) {
     data.onEnter.imageUrl    = String(data.onEnter.imageUrl   ?? "").trim();
     data.onEnter.sendToScene = Boolean(data.onEnter.sendToScene);
     data.onEnter.sceneId     = String(data.onEnter.sceneId    ?? "").trim();
-    data.onEnter.openJournal = Boolean(data.onEnter.openJournal);
-    data.onEnter.journalId   = String(data.onEnter.journalId  ?? "").trim();
+    data.onEnter.openJournal   = Boolean(data.onEnter.openJournal);
+    data.onEnter.journalId     = String(data.onEnter.journalId    ?? "").trim();
+    const jt = data.onEnter.journalTarget;
+    data.onEnter.journalTarget = (jt === "gm" || jt === "player") ? jt : "both";
 
     if (!data.encounter) data.encounter = {};
     data.encounter.chance  = Math.min(100, Math.max(0, Number(data.encounter.chance) || 0));

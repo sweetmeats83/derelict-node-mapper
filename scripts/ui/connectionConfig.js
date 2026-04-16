@@ -50,6 +50,8 @@ export class ConnectionConfigApp extends HandlebarsApplicationMixin(ApplicationV
       tollPaid:         this._formData.tollPaid     ?? false,
       firstStopToll:    stops[0]?.toll ?? false,
       lastStopToll:     stops.length > 1 ? (stops[stops.length - 1]?.toll ?? false) : false,
+      // "false", "first", or "last" — passed as string so HBS eq helper works
+      lockOnTraverse:   String(this._formData.lockOnTraverse ?? false),
     };
   }
 
@@ -64,14 +66,18 @@ export class ConnectionConfigApp extends HandlebarsApplicationMixin(ApplicationV
       });
     });
 
-    // Show/hide toll section when type changes
-    const typeSelect  = el.querySelector("select[name=type]");
-    const tollSection = el.querySelector(".dnm-toll-section");
-    const syncToll = () => {
-      if (tollSection) tollSection.style.display = typeSelect?.value === "toll" ? "" : "none";
+    // Show/hide toll section and lock-traverse section when type changes
+    const typeSelect      = el.querySelector("select[name=type]");
+    const tollSection     = el.querySelector(".dnm-toll-section");
+    const lockTraverseGrp = el.querySelector(".dnm-lock-traverse-group");
+    const NO_DOOR_TYPES   = new Set(["corridor", "junction"]);
+    const syncType = () => {
+      const t = typeSelect?.value ?? "";
+      if (tollSection)     tollSection.style.display     = t === "toll"           ? "" : "none";
+      if (lockTraverseGrp) lockTraverseGrp.style.display = NO_DOOR_TYPES.has(t)  ? "none" : "";
     };
-    syncToll();
-    typeSelect?.addEventListener("change", syncToll);
+    syncType();
+    typeSelect?.addEventListener("change", syncType);
 
     // Show/hide lock message when either lock checkbox changes
     const firstLocked  = el.querySelector("input[name=firstStopLocked]");
@@ -93,10 +99,13 @@ export class ConnectionConfigApp extends HandlebarsApplicationMixin(ApplicationV
     const fd   = new foundry.applications.ux.FormDataExtended(form);
     const data = foundry.utils.expandObject(fd.object);
 
-    data.lineWidth  = Number(data.lineWidth)  || DEFAULT_CONNECTION.lineWidth;
-    data.travelable  = Boolean(data.travelable);
-    data.oneWay      = Boolean(data.oneWay);
-    data.hidden      = Boolean(data.hidden);
+    data.lineWidth      = Number(data.lineWidth) || DEFAULT_CONNECTION.lineWidth;
+    data.travelable     = Boolean(data.travelable);
+    data.oneWay         = Boolean(data.oneWay);
+    data.hidden         = Boolean(data.hidden);
+    // "false" string → boolean false; "first"/"last" stay as strings
+    const lot = data.lockOnTraverse;
+    data.lockOnTraverse = (lot === "first" || lot === "last") ? lot : false;
     data.lockMessage  = (data.lockMessage ?? "").trim() || DEFAULT_CONNECTION.lockMessage;
     data.tollCost     = Math.max(0, Number(data.tollCost) || 0);
     data.tollMessage  = (data.tollMessage ?? "").trim() || DEFAULT_CONNECTION.tollMessage;

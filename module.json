@@ -3,7 +3,7 @@
   "type": "module",
   "title": "Derelict Node Mapper",
   "description": "Network node maps for Foundry VTT. GMs build room graphs; players navigate with animated token-dots that respect Fog of War.",
-  "version": "0.5.87",
+  "version": "0.5.89",
   "compatibility": {
     "minimum": "13",
     "verified": "13",

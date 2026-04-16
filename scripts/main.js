@@ -60,6 +60,13 @@ Hooks.once("ready", () => {
       }
       return;
     }
+    // Lock-on-traverse door — player passed through; GM locks the designated stop.
+    if (payload?.action === "lockStop") {
+      if (game.user?.isGM && canvas.scene && payload.connectionId != null && payload.stopIdx != null) {
+        await ConnectionManager.lockConnectionStop(payload.connectionId, payload.stopIdx).catch(console.warn);
+      }
+      return;
+    }
     TravelManager.handleSocket(payload);
   });
 });
@@ -79,11 +86,31 @@ Hooks.on("canvasReady", async () => {
   // Expose console helper for GM to force-rebuild all paths (e.g. after routing changes)
   if (game.user?.isGM) {
     game.dnm = game.dnm ?? {};
-    game.dnm.rebuildAllPaths = () => ConnectionManager.rebuildAllPaths().then(() => redrawMap());
-    game.dnm.centerMap      = ()       => ConnectionManager.translateMap().then(() => redrawMap());
-    game.dnm.translateMap   = (dx, dy) => ConnectionManager.translateMap(dx, dy).then(() => redrawMap());
-    game.dnm.undoTranslate       = ()       => ConnectionManager.undoTranslate().then(() => redrawMap());
+    game.dnm.rebuildAllPaths      = () => ConnectionManager.rebuildAllPaths().then(() => redrawMap());
+    game.dnm.centerMap            = ()       => ConnectionManager.translateMap().then(() => redrawMap());
+    game.dnm.translateMap         = (dx, dy) => ConnectionManager.translateMap(dx, dy).then(() => redrawMap());
+    game.dnm.undoTranslate        = ()       => ConnectionManager.undoTranslate().then(() => redrawMap());
     game.dnm.resyncWallsAndLights = ()       => NodeManager.resyncWallsAndLights();
+
+    /**
+     * Clear fast travel discovery for one or all players.
+     * Usage:
+     *   game.dnm.clearDiscovered()           — clears all players
+     *   game.dnm.clearDiscovered("userId")   — clears one player by user ID
+     *
+     * User IDs are visible in game.users or via game.users.find(u=>u.name==="Name").id
+     */
+    game.dnm.clearDiscovered = async (userId = null) => {
+      if (!canvas.scene) { console.warn("[DNM] No active scene."); return; }
+      if (userId) {
+        await canvas.scene.update({ [`flags.${MODULE_ID}.discovered.-=${userId}`]: null });
+        console.log(`[DNM] Cleared fast travel discovery for user ${userId}.`);
+      } else {
+        await canvas.scene.update({ [`flags.${MODULE_ID}.-=discovered`]: null });
+        console.log("[DNM] Cleared fast travel discovery for all players.");
+      }
+      refreshTransitBar();
+    };
   }
 });
 
@@ -95,6 +122,16 @@ Hooks.on("canvasTearDown", () => {
   resetTravelOverlay();
   detachLayers();
   destroyTransitBar();
+});
+
+// ── Token border suppression during travel ────────────────────────────────────
+
+// Foundry may call _refreshBorder() when token data updates (e.g. scout moves,
+// scene flags change), resetting border.visible = true.  Re-suppress here.
+Hooks.on("refreshToken", (token) => {
+  if (!document.body.classList.contains("dnm-traveling")) return;
+  const border = token.border ?? token.children?.find(c => c.name === "border" || c.name === "selection");
+  if (border) border.visible = false;
 });
 
 // ── Scout token hooks ─────────────────────────────────────────────────────────

@@ -41,7 +41,7 @@ const _gmScoutPending  = new Map();  // tokenId → bool  (GM throttle)
 let _activePanel = null; // the currently-visible direction panel DOM element
 
 const STOP_MATCH_DIST       = 80;   // px — generous to handle node-placed stops
-const SCOUT_UPDATE_INTERVAL = 150; // px between FoW/spectator position broadcasts
+const SCOUT_UPDATE_INTERVAL = 40;  // px between FoW/spectator position broadcasts
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
@@ -50,6 +50,10 @@ export class TravelManager {
   static async startTravel(token, connectionId, startStopIdx = 0) {
     const scene = canvas.scene;
     if (!scene || !token || !connectionId) return;
+    if (game.paused && !game.user?.isGM) {
+      ui.notifications?.warn("[DNM] Travel is not possible while the game is paused.");
+      return;
+    }
     const tokenDoc = token.document ?? token;
     const tokenId  = tokenDoc.id;
     if (activeDots.has(tokenId)) return;
@@ -80,6 +84,8 @@ export class TravelManager {
   }
 
   static cancelAllTravel() {
+    document.body.classList.remove("dnm-traveling");
+    for (const [tokenId] of activeDots) _restoreTravelBorder(tokenId);
     _removeAllPanels();
     for (const [, dot] of activeDots) _destroyDot(dot);
     activeDots.clear();
@@ -189,6 +195,13 @@ export class TravelManager {
         }
         break;
       }
+
+      case "openJournalGm": {
+        if (!game.user.isGM) return;
+        const entry = game.journal?.get(payload.journalId);
+        if (entry) entry.sheet?.render(true);
+        break;
+      }
     }
   }
 
@@ -230,8 +243,10 @@ export class TravelManager {
     }
     activeDots.set(tokenDoc.id, dot);
 
-    // Deselect all tokens so scout vision drives FoW and no orange box floats
-    canvas.tokens?.releaseAll();
+    // Hide the PIXI selection border (orange box) for the duration of travel.
+    // Token stays selected so the camera continues to follow it.
+    document.body.classList.add("dnm-traveling");
+    _hideTravelBorder(tokenDoc.id);
 
     // Position dot at starting stop
     const startPi = stops[startStopIdx]?.pathIdx ?? 0;
@@ -322,6 +337,20 @@ export class TravelManager {
 
       if (choice === "enter" || choice === "toll") {
         const destNodeId = stop.nodeId ?? null;
+
+        // Lock-on-traverse: lock the designated stop after the token passes through.
+        // Players can't write scene flags — they request via socket; GM writes directly.
+        if (conn.lockOnTraverse === "first" || conn.lockOnTraverse === "last") {
+          const lockIdx = conn.lockOnTraverse === "first" ? 0 : conn.stops.length - 1;
+          if (!(conn.stops[lockIdx]?.locked)) {
+            if (game.user.isGM) {
+              await ConnectionManager.lockConnectionStop(conn.id, lockIdx).catch(console.warn);
+            } else {
+              _broadcast({ action: "lockStop", connectionId: conn.id, stopIdx: lockIdx, originUserId });
+            }
+          }
+        }
+
         _broadcast({ action: "enterRoom", tokenId: tokenDoc.id, destNodeId, originUserId });
         _destroyDot(dot);  // GM originator: dot.scoutId is set, scout deleted here
         activeDots.delete(tokenDoc.id);
@@ -521,31 +550,44 @@ async function _executeNodeEnterAction(destNodeId, tokenDoc = null) {
     else ui.notifications?.warn(`[DNM] Scene UUID "${action.sceneId}" not found.`);
   }
 
-  // Open journal — grant observer permission first so the player can see it
+  // Open journal — respects journalTarget: "both" | "gm" | "player"
   if (action.openJournal && action.journalId) {
-    const entry = game.journal?.get(action.journalId);
+    const entry  = game.journal?.get(action.journalId);
     if (!entry) { ui.notifications?.warn(`[DNM] Journal entry "${action.journalId}" not found.`); return; }
 
-    // Grant the originating user at least OBSERVER on this journal.
-    // Only the GM can update ownership, so broadcast a socket request if needed.
-    const userId   = game.user.id;
-    const OBSERVER = CONST.DOCUMENT_OWNERSHIP_LEVELS?.OBSERVER ?? 2;
-    const current  = entry.ownership?.[userId] ?? entry.ownership?.default ?? 0;
-    if (current < OBSERVER) {
-      if (game.user.isGM) {
-        await entry.update({ ownership: { ...entry.ownership, [userId]: OBSERVER } });
-      } else {
-        // Ask GM client to grant ownership via socket
-        game.socket?.emit(SOCKET_CHANNEL, {
-          action:    "grantJournalObserver",
-          journalId: action.journalId,
-          userId,
-        });
-        // Small delay to let GM process before we try to open
-        await new Promise(r => setTimeout(r, 400));
+    const target = action.journalTarget ?? "both";
+    const isGM   = game.user.isGM;
+
+    // Should THIS client open the journal locally?
+    const openLocally = (target === "both") || (target === "gm" && isGM) || (target === "player" && !isGM);
+
+    // Should the GM client also be notified to open it (only needed when a player is the origin)?
+    const notifyGm = !isGM && (target === "both" || target === "gm");
+
+    if (openLocally) {
+      // Grant the originating user at least OBSERVER so they can see it
+      if (!isGM) {
+        const userId   = game.user.id;
+        const OBSERVER = CONST.DOCUMENT_OWNERSHIP_LEVELS?.OBSERVER ?? 2;
+        const current  = entry.ownership?.[userId] ?? entry.ownership?.default ?? 0;
+        if (current < OBSERVER) {
+          game.socket?.emit(SOCKET_CHANNEL, {
+            action:    "grantJournalObserver",
+            journalId: action.journalId,
+            userId,
+          });
+          await new Promise(r => setTimeout(r, 400));
+        }
       }
+      entry.sheet?.render(true);
     }
-    entry.sheet?.render(true);
+
+    if (notifyGm) {
+      game.socket?.emit(SOCKET_CHANNEL, {
+        action:    "openJournalGm",
+        journalId: action.journalId,
+      });
+    }
   }
 }
 
@@ -562,7 +604,7 @@ async function _createScoutToken(scene, tokenDoc, startPos, originUserId) {
 
   try {
     const [scout] = await scene.createEmbeddedDocuments("Token", [{
-      name:        "•",
+      name:        tokenDoc.name ? `${tokenDoc.name} [travel]` : "•",
       img:         "icons/svg/circle.svg",
       actorId,
       actorLink:   false,
@@ -785,6 +827,8 @@ function _animateDot(dot, subpath) {
     dot.wrapper.position.set(subpath[0].x, subpath[0].y);
 
     const tick = (ticker) => {
+      // Freeze dot in place while game is paused (GMs are exempt)
+      if (game.paused && !game.user?.isGM) return;
       // PIXI v7 passes a number; PIXI v8 passes the Ticker object — handle both
       const delta = typeof ticker === "number" ? ticker : (ticker?.deltaTime ?? 1);
       distTraveled += pxPerTick * delta;
@@ -907,6 +951,10 @@ function _showDirectionPanel(dot, choices) {
 
     panel.addEventListener("pointerdown", e => {
       e.stopPropagation();
+      if (game.paused && !game.user?.isGM) {
+        ui.notifications?.warn("[DNM] Travel is not possible while the game is paused.");
+        return;
+      }
       const btn = e.target.closest("[data-action]");
       if (btn) cleanup(btn.dataset.action);
     });
@@ -979,8 +1027,26 @@ function _ensureDirStyles() {
 
 // ── Token selection ───────────────────────────────────────────────────────────
 
+// Hide the PIXI selection border (orange highlight) on the controlled token.
+// Foundry v13 renders this via token.border (a PIXI Graphics child), not DOM.
+function _hideTravelBorder(tokenId) {
+  const ct = canvas.tokens?.get(tokenId);
+  if (!ct) return;
+  const border = ct.border ?? ct.children?.find(c => c.name === "border" || c.name === "selection");
+  if (border) border.visible = false;
+}
+
+function _restoreTravelBorder(tokenId) {
+  const ct = canvas.tokens?.get(tokenId);
+  if (!ct) return;
+  const border = ct.border ?? ct.children?.find(c => c.name === "border" || c.name === "selection");
+  if (border) border.visible = true;
+}
+
 function _reselectToken(tokenId) {
+  document.body.classList.remove("dnm-traveling");
   if (!tokenId) return;
+  _restoreTravelBorder(tokenId);
   const ct = canvas.tokens?.get(tokenId);
   if (ct && ct.isOwner) ct.control({ releaseOthers: true });
 }
@@ -992,9 +1058,9 @@ function _reselectToken(tokenId) {
 let _lastPanAt = 0;
 function _panCamera(x, y) {
   const now = performance.now();
-  if (now - _lastPanAt < 100) return;
+  if (now - _lastPanAt < 60) return;
   _lastPanAt = now;
-  canvas.animatePan?.({ x, y, duration: 80 });
+  canvas.animatePan?.({ x, y, duration: 200 });
 }
 
 function _broadcast(payload) {

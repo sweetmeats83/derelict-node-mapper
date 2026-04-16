@@ -1,5 +1,11 @@
 /* ── Derelict Node Mapper — Neon theme ─────────────────────────────────────── */
 
+/* Hide token selection border during DNM travel — the orange box is distracting
+   when the camera is following the travel dot. Restored when travel ends.
+   Note: Foundry v13 draws the selection highlight via PIXI (canvas), not DOM.
+   The actual border hiding is done in travel.js via token.border.visible = false.
+   This block is a no-op placeholder kept for reference. */
+
 /* Shared app chrome */
 .dnm-app .window-content {
   background: #04101a;
@@ -148,6 +154,14 @@
   font-size: 0.82rem;
   margin: 0 0 4px;
   padding: 0;
+}
+
+/* Small hint text under form fields */
+.dnm-form .dnm-form-hint {
+  font-size: 0.75rem;
+  color: rgba(0, 255, 255, 0.35);
+  font-style: italic;
+  margin-top: 2px;
 }
 
 /* Buttons */
