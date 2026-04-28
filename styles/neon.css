@@ -1,4 +1,5 @@
 /* ── Derelict Node Mapper — Neon theme ─────────────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap");
 
 /* Hide token selection border during DNM travel — the orange box is distracting
    when the camera is following the travel dot. Restored when travel ends.
@@ -496,4 +497,94 @@
 
 #dnm-transit-svg .dnm-station-label {
   user-select: none;
+}
+
+/* ── Form textarea ─────────────────────────────────────────────────────────── */
+
+.dnm-form textarea {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(0,255,255,0.25);
+  color: #e0ffff;
+  border-radius: 3px;
+  padding: 4px 6px;
+  font-size: 0.88rem;
+  resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dnm-form textarea:focus {
+  border-color: rgba(0,255,255,0.7);
+  outline: none;
+  box-shadow: 0 0 4px rgba(0,255,255,0.3);
+}
+
+/* ── Form hr dividers ─────────────────────────────────────────────────────── */
+
+.dnm-form hr {
+  border: none;
+  border-top: 1px solid rgba(0,255,255,0.12);
+  margin: 4px 0;
+}
+
+/* ── Direction panel (travel junction UI) ─────────────────────────────────── */
+
+.dnm-dir-panel {
+  position:       fixed;
+  z-index:        9999;
+  background:     rgba(0,15,25,0.92);
+  border:         1px solid #00ffff;
+  border-radius:  10px;
+  padding:        6px;
+  box-shadow:     0 0 24px rgba(0,255,255,0.35);
+  pointer-events: all;
+  backdrop-filter: blur(8px);
+}
+
+.dnm-dir-grid {
+  display:               grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows:    repeat(3, 44px);
+  gap:                   3px;
+}
+
+.dnm-dir-btn {
+  width:           44px;
+  height:          44px;
+  background:      rgba(0,255,255,0.08);
+  border:          1px solid rgba(0,255,255,0.45);
+  border-radius:   5px;
+  color:           #00ffff;
+  font-size:       17px;
+  cursor:          pointer;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  transition:      background 0.12s, border-color 0.12s;
+}
+
+.dnm-dir-btn:hover  { background: rgba(0,255,255,0.22); border-color: #00ffff; }
+.dnm-dir-btn:active { background: rgba(0,255,255,0.40); }
+
+.dnm-dir-enter {
+  background:   rgba(255,159,243,0.10);
+  border-color: rgba(255,159,243,0.50);
+  color:        #ff9ff3;
+}
+
+.dnm-dir-enter:hover {
+  background:   rgba(255,159,243,0.25);
+  border-color: #ff9ff3;
+}
+
+.dnm-dir-btn[data-action="locked"] {
+  background:   rgba(255,60,60,0.12);
+  border-color: rgba(255,60,60,0.55);
+  color:        #ff4444;
+  cursor:       not-allowed;
+}
+
+.dnm-dir-btn[data-action="locked"]:hover {
+  background:   rgba(255,60,60,0.22);
+  border-color: #ff4444;
 }

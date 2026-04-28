@@ -2,7 +2,7 @@
   "id": "derelict-node-mapper",
   "type": "module",
   "title": "Derelict Node Mapper",
-  "description": "Network node maps for Foundry VTT. GMs build room graphs; players navigate with animated token-dots that respect Fog of War.",
+  "description": "Network node maps for Foundry VTT. GMs build room graphs with animated token-dot travel, Fog of War scout tokens, junctions, locked/toll/secret doors, encounter checks, and a Chicago-style fast travel transit bar. Designed for sci-fi, dungeon crawl, and any setting where players navigate between named locations along discrete paths.",
   "version": "0.5.89",
   "compatibility": {
     "minimum": "13",
@@ -10,7 +10,10 @@
     "maximum": "15"
   },
   "authors": [
-    { "name": "Nathan Blankenship" }
+    {
+      "name": "Nathan Blankenship",
+      "url": "https://github.com/sweetmeats83"
+    }
   ],
   "esmodules": [
     "scripts/main.js"
@@ -21,8 +24,27 @@
   "socket": true,
   "languages": [],
   "packs": [],
+  "readme": "README.md",
   "url": "https://github.com/sweetmeats83/derelict-node-mapper",
   "license": "MIT",
   "manifest": "https://raw.githubusercontent.com/sweetmeats83/derelict-node-mapper/main/module.json",
-  "download": "https://github.com/sweetmeats83/derelict-node-mapper/releases/latest/download/derelict-node-mapper.zip"
+  "download": "https://github.com/sweetmeats83/derelict-node-mapper/releases/latest/download/derelict-node-mapper.zip",
+  "media": [
+    {
+      "type": "cover",
+      "url": "https://raw.githubusercontent.com/sweetmeats83/derelict-node-mapper/main/docs/gif-01-place-node.gif"
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/sweetmeats83/derelict-node-mapper/main/docs/gif-02-create-connection.gif"
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/sweetmeats83/derelict-node-mapper/main/docs/gif-03-junctions.gif"
+    },
+    {
+      "type": "screenshot",
+      "url": "https://raw.githubusercontent.com/sweetmeats83/derelict-node-mapper/main/docs/gif-08-transit-map.gif"
+    }
+  ]
 }

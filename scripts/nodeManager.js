@@ -32,7 +32,8 @@ setNodeDragCallback(
 
 const _STYLE_KEY    = `${MODULE_ID}.lastNodeStyle`;
 const _STYLE_FIELDS = ["shape", "fillColor", "borderColor", "borderWidth",
-                       "labelColor", "labelSize", "fontFamily", "createWalls"];
+                       "labelColor", "labelSize", "descriptionSize", "descriptionColor",
+                       "fontFamily", "createWalls"];
 
 function _saveNodeStyle(data) {
   const style = {};
@@ -282,8 +283,9 @@ function _onNativePointerDown(event) {
 
   const dbg = game.settings.get(MODULE_ID, "debug");
 
-  // ── GM: eye icon toggles hidden state (works on any layer/tool) ──────────
+  // ── GM handling ───────────────────────────────────────────────────────────
   if (game.user?.isGM) {
+    // Eye-toggle works on any layer / tool
     const hitEye = _findSecretEyeAtPoint(pos.x, pos.y);
     if (hitEye) {
       event.stopPropagation();
@@ -291,7 +293,33 @@ function _onNativePointerDown(event) {
       ConnectionManager.updateConnection(hitEye.id, { hidden: !hitEye.hidden });
       return;
     }
-    // GMs: let all other clicks fall through to Foundry/PIXI normally
+
+    // GM travel: select any token (including player tokens) and click a door
+    // icon — same UX as players, but GMs bypass lock checks. Works from any
+    // Foundry layer (token, tiles, etc.) as long as no DNM tool overlay is
+    // active. The overlay's _onDown handler takes priority when Create/Connect
+    // tools are selected.
+    if (!createMode && !ConnectionManager.isConnectModeActive()) {
+      const hitConn = _findConnectionIconAtPoint(pos.x, pos.y, dbg);
+      if (hitConn) {
+        event.stopPropagation();
+        event.preventDefault();
+        const controlled = canvas.tokens?.controlled ?? [];
+        if (!controlled.length) {
+          ui.notifications?.warn("Select a token first.");
+          return;
+        }
+        const stops        = hitConn.stops ?? [];
+        const lastStop     = stops[stops.length - 1];
+        const nodeId       = _tokenNodeId(controlled[0]);
+        const startStopIdx = (nodeId && lastStop?.nodeId === nodeId) ? stops.length - 1 : 0;
+        if (dbg) console.log(`[DNM] GM startTravel | conn=${hitConn.id} stopIdx=${startStopIdx}`);
+        TravelManager.startTravel(controlled[0], hitConn.id, startStopIdx);
+        return;
+      }
+    }
+
+    // All other GM clicks fall through to Foundry/PIXI normally
     return;
   }
 
@@ -366,6 +394,7 @@ function _findConnectionIconAtPoint(wx, wy, dbg = false) {
   if (dbg) console.log(`[DNM] checking ${conns.length} connections, hitR=${hitR}`);
   for (const conn of conns) {
     if (conn.hidden && !game.user?.isGM) continue;
+    if (conn.travelable === false && !game.user?.isGM) continue;
     const stops = conn.stops ?? [];
     if (stops.length < 2) continue;
     if (dbg) console.log(`[DNM]  conn ${conn.id} type=${conn.type} stops=${stops.length} stop0nodeId=${stops[0]?.nodeId} lastNodeId=${stops[stops.length-1]?.nodeId}`);
@@ -493,6 +522,12 @@ async function _showWaypointMenu(connId, idx, stop) {
 
 async function _showStopEncounterDialog(connId, idx, stop) {
   const enc = stop.encounter ?? { chance: 0, tableId: "" };
+
+  // Capture form values before the dialog closes via a shared object.
+  // DialogV2.wait resolves AFTER the dialog closes, so getElementById would
+  // return null. Capturing in the button callback avoids the race.
+  let captured = null;
+
   let result;
   try {
     result = await foundry.applications.api.DialogV2.wait({
@@ -515,17 +550,24 @@ async function _showStopEncounterDialog(connId, idx, stop) {
           <p style="font-size:11px;color:#aaa;margin:0">Right-click a Roll Table in the sidebar → Copy ID. Result is GM-only.</p>
         </div>`,
       buttons: [
-        { action: "save",   label: "Save",   icon: "fa-solid fa-check" },
+        {
+          action:   "save",
+          label:    "Save",
+          icon:     "fa-solid fa-check",
+          callback: (event, button, dialog) => {
+            const root   = dialog?.element ?? button?.closest(".dialog");
+            const chance = Math.min(100, Math.max(0, Number(root?.querySelector("#dnm-enc-chance")?.value) || 0));
+            const tableId = (root?.querySelector("#dnm-enc-table")?.value ?? "").trim();
+            captured = { chance, tableId };
+          },
+        },
         { action: "cancel", label: "Cancel", icon: "fa-solid fa-times" },
       ],
     });
   } catch { return; }
-  if (!result || result === "cancel") return;
+  if (!result || result === "cancel" || !captured) return;
 
-  // Read values from DOM before dialog closes
-  const chance  = Math.min(100, Math.max(0, Number(document.getElementById("dnm-enc-chance")?.value) || 0));
-  const tableId = (document.getElementById("dnm-enc-table")?.value ?? "").trim();
-
+  const { chance, tableId } = captured;
   const scene = canvas?.scene;
   if (!scene) return;
   const conn  = (await import("./flags.js")).listConnections(scene)[connId];

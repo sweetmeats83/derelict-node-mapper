@@ -35,7 +35,7 @@ setSecretToggleCallback(connId => ConnectionManager.updateConnection(connId, { h
 
 const _CONN_STYLE_KEY    = `${MODULE_ID}.lastConnStyle`;
 const _CONN_STYLE_FIELDS = ["type", "lineColor", "lineWidth", "lineStyle",
-                            "accentColor", "travelable", "oneWay", "hidden"];
+                            "accentColor", "travelable", "oneWay"];
 
 function _saveConnStyle(data) {
   const style = {};
@@ -166,6 +166,13 @@ export class ConnectionManager {
       fromLabel: fromNode?.label ?? "Junction",
       toLabel:   toNode?.label   ?? "Junction",
     };
+
+    // "Locked Door" type implies both ends are locked — pre-set them so the
+    // visual matches the intent without requiring manual checkbox clicks.
+    if (data.type === "locked") {
+      data.stops[0] = { ...data.stops[0], locked: true };
+      data.stops[data.stops.length - 1] = { ...data.stops[data.stops.length - 1], locked: true };
+    }
 
     new ConnectionConfigApp(data, {
       onSubmit: d => ConnectionManager.createConnection(d),

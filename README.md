@@ -50,7 +50,7 @@ Players click a door icon on the map canvas to begin traveling a connection. A g
 
 **Manifest URL:**
 ```
-modules/derelict-node-mapper/module.json
+https://raw.githubusercontent.com/sweetmeats83/derelict-node-mapper/main/module.json
 ```
 
 In Foundry VTT: **Setup → Add-on Modules → Install Module** → paste the manifest URL → Install.

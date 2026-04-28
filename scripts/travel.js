@@ -61,6 +61,12 @@ export class TravelManager {
     const conn = getConnection(scene, connectionId);
     if (!conn?.stops?.length || !conn.path) return;
 
+    // Non-travelable connections block everyone except GMs
+    if (conn.travelable === false && !game.user?.isGM) {
+      ui.notifications?.warn("[DNM] This passage cannot be travelled.");
+      return;
+    }
+
     // GMs can bypass all locks — only players are blocked
     if (!game.user?.isGM) {
       const startStop = conn.stops[startStopIdx];
@@ -225,6 +231,10 @@ export class TravelManager {
       return;
     }
 
+    // Claim the activeDots slot before any await so rapid double-clicks can't
+    // pass the activeDots.has() guard in startTravel while we're awaiting the scout.
+    activeDots.set(tokenDoc.id, null);
+
     // GM originating: create scout directly (no socket round-trip needed).
     // Store in _gmScoutMap immediately so any socket echo of our own startTravel
     // broadcast sees the slot occupied and skips duplicate creation.
@@ -238,6 +248,7 @@ export class TravelManager {
 
     const dot = _spawnDot(tokenDoc.id, conn, originUserId, tokenDoc, scoutId);
     if (!dot) {
+      activeDots.delete(tokenDoc.id);
       if (scoutId) _destroyScoutToken(scene, scoutId);
       return;
     }
@@ -518,14 +529,30 @@ async function _executeNodeEnterAction(destNodeId, tokenDoc = null) {
   await _checkEncounter(destNode.encounter, tokenDoc);
 
   // ── Discovery tracking (fast travel transit bar) ──────────────────────────
-  if (game.user?.id) {
+  {
     const { markLocalDiscovered } = await import("./transitBar.js");
-    markLocalDiscovered(destNodeId);
-    if (game.user.isGM) {
-      // GM can write directly — import lazily to avoid startup cost
-      const { markDiscovered } = await import("./flags.js");
+    const { markDiscovered }      = await import("./flags.js");
+
+    if (game.user?.isGM) {
+      // When the GM travels with a player-owned token, credit that player's
+      // discovery — not the GM, who already sees all hubs regardless.
+      const td      = tokenDoc?.document ?? tokenDoc;
+      const actor   = td?.actorId ? game.actors?.get(td.actorId) : null;
+      const playerOwnerIds = actor
+        ? (game.users?.filter(u => !u.isGM && actor.testUserPermission(u, "OWNER")).map(u => u.id) ?? [])
+        : [];
+
+      if (playerOwnerIds.length) {
+        // Mark locally for each owner (their transit bar updates on their next refresh)
+        for (const uid of playerOwnerIds) {
+          markDiscovered(canvas.scene, uid, destNodeId).catch(console.warn);
+        }
+      }
+      // Always mark for GM too so their own transit bar stays consistent
+      markLocalDiscovered(destNodeId);
       markDiscovered(canvas.scene, game.user.id, destNodeId).catch(console.warn);
     } else {
+      markLocalDiscovered(destNodeId);
       game.socket?.emit(SOCKET_CHANNEL, {
         action: "markDiscovered",
         nodeId:  destNodeId,
@@ -589,6 +616,9 @@ async function _executeNodeEnterAction(destNodeId, tokenDoc = null) {
       });
     }
   }
+
+  // Notify other modules that a token has entered this node
+  Hooks.callAll('dnmNodeEnter', destNode, tokenDoc);
 }
 
 // ── Scout token ───────────────────────────────────────────────────────────────
@@ -897,7 +927,6 @@ function _hideDirPanel()    { if (_activePanel) _activePanel.style.visibility = 
 function _restoreDirPanel() { if (_activePanel) _activePanel.style.visibility = ""; }
 
 function _showDirectionPanel(dot, choices) {
-  _ensureDirStyles();
   return new Promise(resolve => {
     const el = canvas.app?.view ?? canvas.app?.canvas;
     if (!el || !canvas.stage?.worldTransform) { resolve("cancel"); return; }
@@ -966,64 +995,9 @@ function _showDirectionPanel(dot, choices) {
 
 function _removeAllPanels() {
   document.querySelectorAll(".dnm-dir-panel").forEach(el => el.remove());
+  _activePanel = null;
 }
 
-function _ensureDirStyles() {
-  if (document.getElementById("dnm-dir-styles")) return;
-  const s = document.createElement("style");
-  s.id = "dnm-dir-styles";
-  s.textContent = `
-    .dnm-dir-panel {
-      position: fixed;
-      z-index: 9999;
-      background: rgba(0,15,25,0.92);
-      border: 1px solid #00ffff;
-      border-radius: 10px;
-      padding: 6px;
-      box-shadow: 0 0 24px rgba(0,255,255,0.35);
-      pointer-events: all;
-    }
-    .dnm-dir-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 44px);
-      grid-template-rows: repeat(3, 44px);
-      gap: 3px;
-    }
-    .dnm-dir-btn {
-      width: 44px; height: 44px;
-      background: rgba(0,255,255,0.08);
-      border: 1px solid rgba(0,255,255,0.45);
-      border-radius: 5px;
-      color: #00ffff;
-      font-size: 17px;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.12s, border-color 0.12s;
-    }
-    .dnm-dir-btn:hover  { background: rgba(0,255,255,0.22); border-color: #00ffff; }
-    .dnm-dir-btn:active { background: rgba(0,255,255,0.40); }
-    .dnm-dir-enter {
-      background: rgba(255,159,243,0.10);
-      border-color: rgba(255,159,243,0.50);
-      color: #ff9ff3;
-    }
-    .dnm-dir-enter:hover {
-      background: rgba(255,159,243,0.25);
-      border-color: #ff9ff3;
-    }
-    .dnm-dir-btn[data-action="locked"] {
-      background: rgba(255,60,60,0.12);
-      border-color: rgba(255,60,60,0.55);
-      color: #ff4444;
-      cursor: not-allowed;
-    }
-    .dnm-dir-btn[data-action="locked"]:hover {
-      background: rgba(255,60,60,0.22);
-      border-color: #ff4444;
-    }
-  `;
-  document.head.appendChild(s);
-}
 
 // ── Token selection ───────────────────────────────────────────────────────────
 
