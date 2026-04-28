@@ -697,7 +697,7 @@ function _buildChoices(scene, conn, stop, si, stops) {
   // Node terminal: enter (or locked) + optional corridor nav (turn-around).
   if (stop.kind === "terminal" && stop.nodeId) {
     const isLocked = !isGM && (stop.locked ?? false);
-    const isToll   = !isGM && conn.type === "toll" && (conn.tollCost ?? 0) > 0
+    const isToll   = conn.type === "toll" && (conn.tollCost ?? 0) > 0
                     && (stop.toll ?? false)
                     && !(conn.tollOneTime && conn.tollPaid);
     const centerChoice = isLocked

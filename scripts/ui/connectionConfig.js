@@ -18,7 +18,7 @@ export class ConnectionConfigApp extends HandlebarsApplicationMixin(ApplicationV
   static DEFAULT_OPTIONS = {
     id:       "dnm-connection-config",
     window:   { title: "Connection Settings", resizable: false },
-    position: { width: 420, height: "auto" },
+    position: { width: 420, height: 560 },
     classes:  ["dnm-app", "dnm-connection-config"],
     actions:  {
       submit: ConnectionConfigApp._onClickSubmit,

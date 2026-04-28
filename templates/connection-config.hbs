@@ -1,4 +1,5 @@
-<form autocomplete="off" class="dnm-form">
+<form autocomplete="off" class="dnm-form dnm-form-scroll">
+<div class="dnm-form-body">
 
   <p class="dnm-subheading">
     <strong>{{fromLabel}}</strong> &rarr; <strong>{{toLabel}}</strong>
@@ -129,6 +130,7 @@
     <textarea name="lockMessage" rows="3">{{lockMessage}}</textarea>
   </div>
 
+</div>
   <footer class="sheet-footer">
     {{#if canDelete}}
       <button type="button" class="dnm-btn dnm-btn-danger" data-action="delete">
